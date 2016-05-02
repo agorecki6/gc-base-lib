@@ -17,64 +17,56 @@
 //==============================================================================
 #pragma once
 
-#include <macro/base.h>
+#define _GNU_SOURCE
 
-#include <lib/base.h>
-
-
-
-//==============================================================================
-// Definitions
-//==============================================================================
-#define COMP_CONF_EXTR 1
-#define COMP_SER_CSTM  2
-
-
-
-//==============================================================================
-// Predeclarations
-//==============================================================================
-struct comp_arr_info;
+#include <sys/types.h>
 
 
 
 //==============================================================================
 // Type definitions
 //==============================================================================
-typedef u1 (comp_fp_init)(void*, void*);
-typedef void (comp_fp_deinit)(void*);
+typedef uint8_t u1;
+typedef uint16_t u2;
+typedef uint32_t u4;
+typedef uint64_t u8;
 
-typedef u1 (comp_fp_conf)(void*, void*);
+typedef int8_t s1;
+typedef int16_t s2;
+typedef int32_t s4;
+typedef int64_t s8;
 
+#if defined(HAVE_INT128)
+    typedef __uint128 u16;
+    typedef __int128 s16;
+#endif
 
-
-//==============================================================================
-// Structures
-//==============================================================================
-struct comp_info {
-	u1 flag;
-	u2 s_inst;
-	u2 s_conf;
-	struct comp_arr_info a_prim;
-	struct comp_arr_info a_comp;
-	comp_fp_init *fp_init;
-	comp_fp_deinit *fp_deinit;
-};
-
-struct comp_info_extr {
-	struct comp_info gen;
-	struct comp_arr_info a_comp_conf;
-	comp_fp_conf *fp_conf_g;
-	comp_fp_conf *fp_conf_s;
-};
+typedef off_t off;
+typedef size_t us;
+typedef ssize_t ss;
 
 
 
 //==============================================================================
-// Function prototypes
+// Macros
 //==============================================================================
-__dllexp u1 comp_init(struct comp_info*, void*, void*);
-__dllexp void comp_deinit(struct comp_info*, void*);
+#define typeof(VAR) __typeof__((VAR))
 
-__dllexp u1 comp_conf_g(struct comp_info*, void*, void*);
-__dllexp u1 comp_conf_s(struct comp_info*, void*, void*);
+#define likely(EXPR) __builtin_expect((EXPR), 1)
+#define unlikely(EXPR) __builtin_expect((EXPR), 0)
+
+#define __dll_import __declspec(dllimport)
+#define __dll_export __declspec(dllexport)
+
+#define __stmt_expr __extension__
+
+
+
+//==============================================================================
+// Statement expressions
+//==============================================================================
+#define containerof(PTR, N_TYPE, N_MEMB) \
+__stmt_expr ({ \
+	const typeof(((N_TYPE *)0)->N_MEMB) *_memb = (PTR); \
+	(N_TYPE *)((u1 *)_memb - offsetof(N_TYPE, N_MEMB)); \
+})
